@@ -111,7 +111,7 @@ def logout(username):
 	for user in my_match_users:
 		online_matches = get_online_matches_user(user)
 		sock = connections[user]
-		if sock != Null:
+		if sock != None:
 			msg = "recv_online_matches "
 			for user2 in online_matches:
 				msg += str(user2) + " "
@@ -250,7 +250,7 @@ def start_server():
 				SOCKET_LIST.append(sockfd)
 				print "Client (%s, %s) connected" % addr
 				 
-				broadcast(server_socket, sockfd, "[%s:%s] entered our chatting room\n" % addr)
+				#broadcast(server_socket, sockfd, "[%s:%s] entered our chatting room\n" % addr)
 			 
 			# a message from a client, not a new connection
 			else:
@@ -285,14 +285,28 @@ def start_server():
 
 							matches_list = get_online_matches_user(username)
 							msg = "recv_online_matches "
-							if matches_list == []:
-								msg += " "
+
 							for user in matches_list:
 								msg += str(user) + " "
 							print msg
-							sock.send(msg[:-1])
+							sock.send(msg)
+
+							for user in matches_list:
+								user_matches = get_online_matches_user(user)
+								msg = "recv_online_matches "
+
+								sock = connections[user]
+								for user_match in user_matches:
+									msg += str(user_match) + " "
+								print msg
+								sock.send(msg)
 						continue
 					
+					if command == "logout":
+						username = get_user_by_connection(sock)
+						logout(username)
+						continue
+
 					if command == "rr":
 						username = get_user_by_connection(sock)
 						time = data_split[1]
